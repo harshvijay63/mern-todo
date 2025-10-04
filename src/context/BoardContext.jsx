@@ -198,46 +198,46 @@ export const BoardProvider = ({ children }) => {
         }
     };
 
-  const moveTask = async (source, destination, draggableId) => {
-    console.log('Moving task:', { source, destination, draggableId });
-    
-    // Update UI immediately
-    dispatch({
-      type: 'MOVE_TASK',
-      payload: {
-        source,
-        destination,
-        draggableId
-      }
-    });
+    const moveTask = async (source, destination, draggableId) => {
+        console.log('Moving task:', { source, destination, draggableId });
 
-    // Update backend
-    try {
-      const updateData = {
-        columnId: destination.droppableId,
-        status: destination.droppableId === 'todo' ? 'todo' :
-               destination.droppableId === 'inprogress' ? 'inprogress' : 'done',
-        order: destination.index
-      };
-      console.log('Sending update:', updateData);
-      
-      const response = await axios.put(`http://localhost:5001/api/tasks/${draggableId}`, updateData);
-      console.log('Move task response:', response.data);
-    } catch (error) {
-      console.error('Failed to update task position:', error);
-      console.error('Error details:', error.response?.data);
-      
-      // Revert on error
-      dispatch({
-        type: 'MOVE_TASK',
-        payload: {
-          source: destination,
-          destination: source,
-          draggableId
+        // Update UI immediately
+        dispatch({
+            type: 'MOVE_TASK',
+            payload: {
+                source,
+                destination,
+                draggableId
+            }
+        });
+
+        // Update backend
+        try {
+            const updateData = {
+                columnId: destination.droppableId,
+                status: destination.droppableId === 'todo' ? 'todo' :
+                    destination.droppableId === 'inprogress' ? 'inprogress' : 'done',
+                order: destination.index
+            };
+            console.log('Sending update:', updateData);
+
+            const response = await axios.put(`http://localhost:5001/api/tasks/${draggableId}`, updateData);
+            console.log('Move task response:', response.data);
+        } catch (error) {
+            console.error('Failed to update task position:', error);
+            console.error('Error details:', error.response?.data);
+
+            // Revert on error
+            dispatch({
+                type: 'MOVE_TASK',
+                payload: {
+                    source: destination,
+                    destination: source,
+                    draggableId
+                }
+            });
         }
-      });
-    }
-  };
+    };
 
     const loadBoard = async () => {
         dispatch({ type: 'SET_LOADING', payload: true });
